@@ -15,7 +15,7 @@ if (!MONGODB_URI) {
   throw new Error("Please define MONGODB_URI in your environment variables");
 }
 
-let cached: MongooseCache = global.mongoose ?? { conn: null, promise: null };
+const cached: MongooseCache = global.mongoose ?? { conn: null, promise: null };
 
 if (!global.mongoose) {
   global.mongoose = cached;
