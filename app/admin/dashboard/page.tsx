@@ -14,7 +14,7 @@ export default async function AdminDashboard() {
   await connectDB();
 
   const totalMovies = await Movie.countDocuments();
-  const latest = (await Movie.find().sort({ createdAt: -1 }).limit(10).lean()) as unknown as DashboardMovie[];
+  const latest = await Movie.find().sort({ createdAt: -1 }).limit(10).lean<DashboardMovie[]>();
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6">

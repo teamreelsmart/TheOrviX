@@ -16,7 +16,7 @@ export default async function AdminRequestsPage() {
   await requireAdmin();
   await connectDB();
 
-  const requests = (await Request.find().sort({ createdAt: -1 }).lean()) as unknown as MovieRequest[];
+  const requests = await Request.find().sort({ createdAt: -1 }).lean<MovieRequest[]>();
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6">
