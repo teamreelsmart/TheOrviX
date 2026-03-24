@@ -9,9 +9,9 @@ declare global {
   var mongoose: MongooseCache | undefined;
 }
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI!;
 
-if (!MONGODB_URI) {
+if (!process.env.MONGODB_URI) {
   throw new Error("Please define MONGODB_URI in your environment variables");
 }
 
