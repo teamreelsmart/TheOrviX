@@ -3,12 +3,18 @@ import { requireAdmin } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Movie from "@/models/Movie";
 
+type DashboardMovie = {
+  _id: { toString: () => string };
+  title: string;
+  releaseYear?: string | number;
+};
+
 export default async function AdminDashboard() {
   await requireAdmin();
   await connectDB();
 
   const totalMovies = await Movie.countDocuments();
-  const latest = await Movie.find().sort({ createdAt: -1 }).limit(10).lean();
+  const latest = (await Movie.find().sort({ createdAt: -1 }).limit(10).lean()) as unknown as DashboardMovie[];
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6">
@@ -30,7 +36,7 @@ export default async function AdminDashboard() {
       <p className="mb-4 rounded bg-panel p-4">Total movies: {totalMovies}</p>
 
       <div className="space-y-2">
-        {latest.map((movie: any) => (
+        {latest.map((movie) => (
           <div key={movie._id.toString()} className="flex items-center justify-between rounded bg-panel p-3">
             <div>
               <p className="font-medium">{movie.title}</p>
