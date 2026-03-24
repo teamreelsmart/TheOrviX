@@ -1,14 +1,22 @@
 import Navbar from "@/components/Navbar";
 import MovieCard from "@/components/MovieCard";
 import { Movie } from "@/types";
+import connectDB from "@/lib/db";
+import MovieModel from "@/models/Movie";
 
 async function getData(query: string, genre: string, year: string, language: string, type: string) {
-  const params = new URLSearchParams({ query, genre, year, language, type });
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/movies?${params.toString()}`, {
-    cache: "no-store"
-  });
-  if (!res.ok) return { movies: [] };
-  return res.json();
+  await connectDB();
+  
+  const filter: Record<string, unknown> = {};
+  if (query) filter.title = { $regex: query, $options: "i" };
+  if (genre) filter.genre = { $regex: genre, $options: "i" };
+  if (year) filter.releaseYear = Number(year);
+  if (language) filter.language = { $regex: language, $options: "i" };
+  if (type) filter.type = type;
+
+  const movies = await MovieModel.find(filter).sort({ createdAt: -1 }).lean();
+
+  return { movies: JSON.parse(JSON.stringify(movies)) as Movie[] };
 }
 
 export default async function SearchPage({

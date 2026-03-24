@@ -1,11 +1,13 @@
 import { redirect } from "next/navigation";
+import connectDB from "@/lib/db";
+import MovieModel from "@/models/Movie";
+import { Movie } from "@/types";
 
-async function getMovie(id: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/movie/${id}`, {
-    cache: "no-store"
-  });
-  if (!res.ok) return null;
-  return res.json();
+async function getMovie(id: string): Promise<Movie | null> {
+  await connectDB();
+  const movie = await MovieModel.findById(id).lean();
+  if (!movie) return null;
+  return JSON.parse(JSON.stringify(movie)) as Movie;
 }
 
 export default async function DownloadRedirect({
@@ -17,9 +19,9 @@ export default async function DownloadRedirect({
 }) {
   const { id } = await params;
   const { quality } = await searchParams;
-  const data = await getMovie(id);
+  const movie = await getMovie(id);
 
-  const link = data?.movie?.downloadLinks?.find((x: { quality: string }) => x.quality === quality)?.link;
+  const link = movie?.downloadLinks?.find((x) => x.quality === quality)?.link;
 
   if (link) {
     redirect(link);

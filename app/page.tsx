@@ -4,13 +4,22 @@ import Footer from "@/components/Footer";
 import MovieCard from "@/components/MovieCard";
 import RequestForm from "@/components/RequestForm";
 import { Movie } from "@/types";
+import connectDB from "@/lib/db";
+import MovieModel from "@/models/Movie";
 
 async function getMovies(page: number) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/movies?page=${page}`, {
-    cache: "no-store"
-  });
-  if (!res.ok) return { movies: [], totalPages: 1 };
-  return res.json();
+  await connectDB();
+  const limit = 10;
+  
+  const [movies, total] = await Promise.all([
+    MovieModel.find({}).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+    MovieModel.countDocuments({})
+  ]);
+
+  return {
+    movies: JSON.parse(JSON.stringify(movies)) as Movie[],
+    totalPages: Math.max(1, Math.ceil(total / limit))
+  };
 }
 
 export default async function Home({

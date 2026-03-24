@@ -1,14 +1,14 @@
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import { Movie } from "@/types";
+import connectDB from "@/lib/db";
+import MovieModel from "@/models/Movie";
 
 async function getMovie(slug: string): Promise<Movie | null> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/movies?slug=${slug}`, {
-    cache: "no-store"
-  });
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data.movie;
+  await connectDB();
+  const movie = await MovieModel.findOne({ slug }).lean();
+  if (!movie) return null;
+  return JSON.parse(JSON.stringify(movie)) as Movie;
 }
 
 export default async function MovieDetails({ params }: { params: Promise<{ slug: string }> }) {
