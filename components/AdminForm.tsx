@@ -4,6 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 type DownloadLink = { quality: string; size: string; link: string };
+type TextFieldKey =
+  | "title"
+  | "poster"
+  | "description"
+  | "releaseYear"
+  | "imdbRating"
+  | "genre"
+  | "language";
 
 type Props = {
   mode: "add" | "edit";
@@ -76,22 +84,24 @@ export default function AdminForm({ mode, initialData }: Props) {
     }
   };
 
+  const textFields: Array<{ label: string; key: TextFieldKey }> = [
+    { label: "Title", key: "title" },
+    { label: "Poster URL", key: "poster" },
+    { label: "Description", key: "description" },
+    { label: "Release Year", key: "releaseYear" },
+    { label: "IMDb Rating", key: "imdbRating" },
+    { label: "Genre (comma separated)", key: "genre" },
+    { label: "Language", key: "language" }
+  ];
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 rounded-xl bg-panel p-4">
-      {[
-        ["Title", "title"],
-        ["Poster URL", "poster"],
-        ["Description", "description"],
-        ["Release Year", "releaseYear"],
-        ["IMDb Rating", "imdbRating"],
-        ["Genre (comma separated)", "genre"],
-        ["Language", "language"]
-      ].map(([label, key]) => (
+      {textFields.map(({ label, key }) => (
         <div key={key}>
           <label className="mb-1 block text-sm">{label}</label>
           <input
             required
-            value={(form as Record<string, string>)[key]}
+            value={form[key]}
             onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
             className="w-full rounded bg-black/30 p-2"
           />
